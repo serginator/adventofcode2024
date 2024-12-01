@@ -1,26 +1,13 @@
 package main
 
 import (
-	"bufio"
-	"os"
 	"sort"
 )
 
 func Part1(filename string) (int, error) {
-	file, err := os.Open(filename)
+	nums1, nums2, err := ReadNumbersFromFile(filename)
 	if err != nil {
 		return 0, err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	var nums1 []int
-	var nums2 []int
-	for scanner.Scan() {
-		line := scanner.Text()
-		nums := SplitLine(line)
-		nums1 = append(nums1, nums[0])
-		nums2 = append(nums2, nums[1])
 	}
 
 	sort.Ints(nums1)
