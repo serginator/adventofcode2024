@@ -8,41 +8,41 @@ import (
 
 func TestSplitLine(t *testing.T) {
 	tests := []struct {
-			name     string
-			input    string
-			expected []int
-		}{
-			{
-				name:     "basic split",
-				input:    "3   4",
-				expected: []int{3, 4},
-			},
-			{
-				name:     "different numbers",
-				input:    "1   9",
-				expected: []int{1, 9},
-			},
-			{
-				name:     "same numbers",
-				input:    "5   5",
-				expected: []int{5, 5},
-			},
-			{
-				name:     "multiple spaces",
-				input:    "3     4",
-				expected: []int{3, 4},
-			},
-			{
-				name:     "tab separated",
-				input:    "3\t4",
-				expected: []int{3, 4},
-			},
-			{
-				name:     "larger numbers",
-				input:    "12  34",
-				expected: []int{12, 34},
-			},
-		}
+		name     string
+		input    string
+		expected []int
+	}{
+		{
+			name:     "basic split",
+			input:    "3   4",
+			expected: []int{3, 4},
+		},
+		{
+			name:     "different numbers",
+			input:    "1   9",
+			expected: []int{1, 9},
+		},
+		{
+			name:     "same numbers",
+			input:    "5   5",
+			expected: []int{5, 5},
+		},
+		{
+			name:     "multiple spaces",
+			input:    "3     4",
+			expected: []int{3, 4},
+		},
+		{
+			name:     "tab separated",
+			input:    "3\t4",
+			expected: []int{3, 4},
+		},
+		{
+			name:     "larger numbers",
+			input:    "12  34",
+			expected: []int{12, 34},
+		},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
