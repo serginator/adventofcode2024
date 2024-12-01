@@ -97,10 +97,10 @@ func TestReadNumbersFromFile(t *testing.T) {
 }
 
 func TestPart1Error(t *testing.T) {
-    _, err := Part1("nonexistentfile")
-    if err == nil {
-        t.Error("Expected error for non-existent file")
-    }
+	_, err := Part1("nonexistentfile")
+	if err == nil {
+		t.Error("Expected error for non-existent file")
+	}
 }
 
 func TestPart1(t *testing.T) {
@@ -136,10 +136,10 @@ func TestPart1(t *testing.T) {
 }
 
 func TestPart2Error(t *testing.T) {
-    _, err := Part2("nonexistentfile")
-    if err == nil {
-        t.Error("Expected error for non-existent file")
-    }
+	_, err := Part2("nonexistentfile")
+	if err == nil {
+		t.Error("Expected error for non-existent file")
+	}
 }
 
 func TestPart2(t *testing.T) {
