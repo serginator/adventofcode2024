@@ -17,9 +17,3 @@ To run the code:
 ```bash
 go run .
 ```
-
-If you want to use pre-commits, run the following command:
-```bash
-pip install pre-commit
-pre-commit install
-```
