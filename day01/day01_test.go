@@ -29,7 +29,7 @@ func TestSplitLine(t *testing.T) {
 		},
 		{
 			name:     "multiple spaces",
-			input:    "3     4",
+			input:    "3	 4",
 			expected: []int{3, 4},
 		},
 		{
@@ -59,40 +59,150 @@ func TestSplitLine(t *testing.T) {
 	}
 }
 
-func TestReadNumbersFromFile(t *testing.T) {
-	tempInput := []byte(`3   4
-4   3
-2   5
-1   3
-3   9
-3   3`)
-
-	tmpfile, err := os.CreateTemp("", "example")
-	if err != nil {
-		t.Fatal(err)
+func TestReadNumbersFromFile_Errors(t *testing.T) {
+	tests := []struct {
+		name        string
+		setup       func() string
+		expectError bool
+		errorMsg    string
+	}{
+		{
+			name: "nonexistent file",
+			setup: func() string {
+				return "nonexistentfile.txt"
+			},
+			expectError: true,
+			errorMsg:    "should error on nonexistent file",
+		},
+		{
+			name: "empty file",
+			setup: func() string {
+				tmpfile, err := os.CreateTemp("", "empty")
+				if err != nil {
+					t.Fatal(err)
+				}
+				tmpfile.Close()
+				return tmpfile.Name()
+			},
+			expectError: false,
+			errorMsg:    "should handle empty file",
+		},
+		{
+			name: "invalid number format",
+			setup: func() string {
+				tmpfile, err := os.CreateTemp("", "invalid")
+				if err != nil {
+					t.Fatal(err)
+				}
+				content := []byte("abc def\n1 2")
+				if _, err := tmpfile.Write(content); err != nil {
+					t.Fatal(err)
+				}
+				tmpfile.Close()
+				return tmpfile.Name()
+			},
+			expectError: false,
+			errorMsg:    "should handle invalid number format",
+		},
+		{
+			name: "insufficient columns",
+			setup: func() string {
+				tmpfile, err := os.CreateTemp("", "insufficient")
+				if err != nil {
+					t.Fatal(err)
+				}
+				content := []byte("1\n1 2")
+				if _, err := tmpfile.Write(content); err != nil {
+					t.Fatal(err)
+				}
+				tmpfile.Close()
+				return tmpfile.Name()
+			},
+			expectError: false,
+			errorMsg:    "should handle insufficient columns",
+		},
 	}
-	defer os.Remove(tmpfile.Name())
 
-	if _, err := tmpfile.Write(tempInput); err != nil {
-		t.Fatal(err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filename := tt.setup()
+			if filename != "nonexistentfile.txt" {
+				defer os.Remove(filename)
+			}
+
+			nums1, nums2, err := ReadNumbersFromFile(filename)
+
+			if tt.expectError {
+				if err == nil {
+					t.Error(tt.errorMsg)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("unexpected error: %v", err)
+				}
+				if nums1 == nil {
+					t.Error("nums1 should not be nil")
+				}
+				if nums2 == nil {
+					t.Error("nums2 should not be nil")
+				}
+			}
+		})
 	}
-	if err := tmpfile.Close(); err != nil {
-		t.Fatal(err)
+}
+
+func TestReadNumbersFromFile_ValidContent(t *testing.T) {
+	tests := []struct {
+		name          string
+		content       string
+		expectedNums1 []int
+		expectedNums2 []int
+	}{
+		{
+			name:          "single line",
+			content:       "1 2",
+			expectedNums1: []int{1},
+			expectedNums2: []int{2},
+		},
+		{
+			name:          "multiple lines",
+			content:       "1 2\n3 4\n5 6",
+			expectedNums1: []int{1, 3, 5},
+			expectedNums2: []int{2, 4, 6},
+		},
+		{
+			name:          "extra whitespace",
+			content:       "1	2\n3  4",
+			expectedNums1: []int{1, 3},
+			expectedNums2: []int{2, 4},
+		},
 	}
 
-	nums1, nums2, err := ReadNumbersFromFile(tmpfile.Name())
-	if err != nil {
-		t.Fatalf("Process failed: %v", err)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpfile, err := os.CreateTemp("", "test")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.Remove(tmpfile.Name())
 
-	expectedNums1 := []int{3, 4, 2, 1, 3, 3}
-	expectedNums2 := []int{4, 3, 5, 3, 9, 3}
+			if _, err := tmpfile.Write([]byte(tt.content)); err != nil {
+				t.Fatal(err)
+			}
+			tmpfile.Close()
 
-	if !reflect.DeepEqual(nums1, expectedNums1) {
-		t.Errorf("First column: expected %v, got %v", expectedNums1, nums1)
-	}
-	if !reflect.DeepEqual(nums2, expectedNums2) {
-		t.Errorf("Second column: expected %v, got %v", expectedNums2, nums2)
+			nums1, nums2, err := ReadNumbersFromFile(tmpfile.Name())
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if !reflect.DeepEqual(nums1, tt.expectedNums1) {
+				t.Errorf("nums1 = %v, want %v", nums1, tt.expectedNums1)
+			}
+			if !reflect.DeepEqual(nums2, tt.expectedNums2) {
+				t.Errorf("nums2 = %v, want %v", nums2, tt.expectedNums2)
+			}
+		})
 	}
 }
 

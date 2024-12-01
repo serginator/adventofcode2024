@@ -31,8 +31,9 @@ func ReadNumbersFromFile(filename string) ([]int, []int, error) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	var nums1 []int
-	var nums2 []int
+	nums1 := make([]int, 0)
+	nums2 := make([]int, 0)
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		nums := SplitLine(line)
