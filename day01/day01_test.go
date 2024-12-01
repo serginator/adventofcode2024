@@ -96,6 +96,13 @@ func TestReadNumbersFromFile(t *testing.T) {
 	}
 }
 
+func TestPart1Error(t *testing.T) {
+    _, err := Part1("nonexistentfile")
+    if err == nil {
+        t.Error("Expected error for non-existent file")
+    }
+}
+
 func TestPart1(t *testing.T) {
 	tempInput := []byte(`3   4
 4   3
@@ -126,6 +133,13 @@ func TestPart1(t *testing.T) {
 	if result != expected {
 		t.Errorf("Expected output %d, got %d", expected, result)
 	}
+}
+
+func TestPart2Error(t *testing.T) {
+    _, err := Part2("nonexistentfile")
+    if err == nil {
+        t.Error("Expected error for non-existent file")
+    }
 }
 
 func TestPart2(t *testing.T) {
