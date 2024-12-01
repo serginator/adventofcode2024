@@ -1,10 +1,90 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"reflect"
 	"testing"
 )
+
+func TestMain(t *testing.T) {
+	// Create a temporary test input file
+	tempInput := []byte(`3   4
+4   3
+2   5
+1   3
+3   9
+3   3`)
+
+	tmpfile, err := os.CreateTemp("", "input")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write(tempInput); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Capture stdout
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	// Temporarily rename the test file to "input"
+	originalInput := "input"
+	if _, err := os.Stat(originalInput); err == nil {
+		// If input file exists, save it
+		tmpOriginal, err := os.CreateTemp("", "original_input")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer os.Remove(tmpOriginal.Name())
+
+		originalContent, err := os.ReadFile(originalInput)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(tmpOriginal.Name(), originalContent, 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		// Restore original input file after test
+		defer func() {
+			os.Remove(originalInput)
+			os.Rename(tmpOriginal.Name(), originalInput)
+		}()
+	}
+
+	// Copy our test file to "input"
+	if err := os.Rename(tmpfile.Name(), originalInput); err != nil {
+		t.Fatal(err)
+	}
+
+	// Run main
+	main()
+
+	// Restore stdout
+	w.Close()
+	os.Stdout = oldStdout
+
+	// Read captured output
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, r); err != nil {
+		t.Fatal(err)
+	}
+	output := buf.String()
+
+	// Check expected output
+	expectedOutput := "Part1 result:  11\nPart2 result:  31\n"
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}
 
 func TestSplitLine(t *testing.T) {
 	tests := []struct {
