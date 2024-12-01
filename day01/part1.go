@@ -4,11 +4,9 @@ import (
 	"bufio"
 	"os"
 	"sort"
-	"strconv"
-	"strings"
 )
 
-func Process(filename string) (int, error) {
+func Part1(filename string) (int, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return 0, err
@@ -20,7 +18,7 @@ func Process(filename string) (int, error) {
 	var nums2 []int
 	for scanner.Scan() {
 		line := scanner.Text()
-		nums := splitLine(line)
+		nums := SplitLine(line)
 		nums1 = append(nums1, nums[0])
 		nums2 = append(nums2, nums[1])
 	}
@@ -37,14 +35,4 @@ func Process(filename string) (int, error) {
 		}
 	}
 	return sum, nil
-}
-
-func splitLine(line string) []int {
-	nums := make([]int, 2)
-	fields := strings.Fields(line)
-	if len(fields) >= 2 {
-		nums[0], _ = strconv.Atoi(fields[0])
-		nums[1], _ = strconv.Atoi(fields[1])
-	}
-	return nums
 }

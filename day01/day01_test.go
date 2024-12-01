@@ -45,20 +45,20 @@ func TestSplitLine(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := splitLine(tt.input)
+			result := SplitLine(tt.input)
 			if len(result) != len(tt.expected) {
-				t.Errorf("splitLine() returned slice of length %d, expected %d", len(result), len(tt.expected))
+				t.Errorf("SplitLine() returned slice of length %d, expected %d", len(result), len(tt.expected))
 			}
 			for i := 0; i < len(tt.expected); i++ {
 				if result[i] != tt.expected[i] {
-					t.Errorf("splitLine() = %v, expected %v", result, tt.expected)
+					t.Errorf("SplitLine() = %v, expected %v", result, tt.expected)
 				}
 			}
 		})
 	}
 }
 
-func TestProcess(t *testing.T) {
+func TestPart1(t *testing.T) {
 	tempInput := []byte(`3   4
 4   3
 2   5
@@ -79,12 +79,43 @@ func TestProcess(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result, err := Process(tmpfile.Name())
+	result, err := Part1(tmpfile.Name())
 	if err != nil {
 		t.Fatalf("Process failed: %v", err)
 	}
 
 	expected := 11
+	if result != expected {
+		t.Errorf("Expected output %d, got %d", expected, result)
+	}
+}
+
+func TestPart2(t *testing.T) {
+	tempInput := []byte(`3   4
+4   3
+2   5
+1   3
+3   9
+3   3`)
+	tmpfile, err := os.CreateTemp("", "example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write(tempInput); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := Part2(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("Process failed: %v", err)
+	}
+
+	expected := 31
 	if result != expected {
 		t.Errorf("Expected output %d, got %d", expected, result)
 	}
