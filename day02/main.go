@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -45,17 +47,22 @@ func ReadRowsFromFile(filename string) ([][]int, error) {
 }
 
 func SplitLine(line string) []int {
-	nums := make([]int, 0)
-	for i := 0; i < len(line); i++ {
-		if line[i] == ' ' {
-			continue
+	fields := strings.Fields(line)
+
+	nums := make([]int, 0, len(fields))
+	for _, field := range fields {
+		num, err := strconv.Atoi(field)
+		if err == nil {
+			if num < 0 {
+				log.Printf("Negative number %d found in input", num)
+				return nil
+			}
+			nums = append(nums, num)
+		} else {
+			log.Printf("Error converting %s to int: %v", field, err)
+			return nil
 		}
-		num := 0
-		for i < len(line) && line[i] != ' ' {
-			num = num*10 + int(line[i]-'0')
-			i++
-		}
-		nums = append(nums, num)
 	}
+
 	return nums
 }

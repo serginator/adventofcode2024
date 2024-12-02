@@ -77,6 +77,45 @@ func TestMain(t *testing.T) {
 	}
 }
 
+func TestSplitLine_Errors(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []int
+	}{
+		{
+			name:     "non-numeric input",
+			input:    "1 a 3",
+			expected: nil,
+		},
+		{
+			name:     "mixed valid and invalid numbers",
+			input:    "1 2.5 3 abc 4",
+			expected: nil,
+		},
+		{
+			name:     "special characters",
+			input:    "1 @#$ 2 % 3",
+			expected: nil,
+		},
+		{
+			name:     "negative numbers",
+			input:    "-1 2 -3",
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := SplitLine(tt.input)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("SplitLine(%q) = %v, want %v",
+					tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestSplitLine(t *testing.T) {
 	tests := []struct {
 		name     string
