@@ -36,7 +36,7 @@ func ReadRowsFromFile(filename string) ([][]int, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		row := SplitLine(line)
-		if row != nil && len(row) > 0 {
+		if len(row) > 0 {
 			rows = append(rows, row)
 		}
 	}
