@@ -9,7 +9,6 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	// Create a temporary test input file
 	tempInput := []byte(`3   4
 4   3
 2   5
@@ -30,15 +29,12 @@ func TestMain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Capture stdout
 	oldStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	// Temporarily rename the test file to "input"
 	originalInput := "input"
 	if _, err := os.Stat(originalInput); err == nil {
-		// If input file exists, save it
 		tmpOriginal, err := os.CreateTemp("", "original_input")
 		if err != nil {
 			t.Fatal(err)
@@ -53,33 +49,27 @@ func TestMain(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// Restore original input file after test
 		defer func() {
 			os.Remove(originalInput)
 			os.Rename(tmpOriginal.Name(), originalInput)
 		}()
 	}
 
-	// Copy our test file to "input"
 	if err := os.Rename(tmpfile.Name(), originalInput); err != nil {
 		t.Fatal(err)
 	}
 
-	// Run main
 	main()
 
-	// Restore stdout
 	w.Close()
 	os.Stdout = oldStdout
 
-	// Read captured output
 	var buf bytes.Buffer
 	if _, err := io.Copy(&buf, r); err != nil {
 		t.Fatal(err)
 	}
 	output := buf.String()
 
-	// Check expected output
 	expectedOutput := "Part1 result:  11\nPart2 result:  31\n"
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)

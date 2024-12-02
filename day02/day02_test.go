@@ -9,7 +9,6 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	// Create a temporary test input file
 	tempInput := []byte(`7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
@@ -71,7 +70,7 @@ func TestMain(t *testing.T) {
 	}
 	output := buf.String()
 
-	expectedOutput := "Part1 result:  2\n"
+	expectedOutput := "Part1 result:  2\nPart2 result:  4\n"
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
 	}
@@ -509,6 +508,150 @@ func TestPart1(t *testing.T) {
 	}
 
 	expected := 2
+	if result != expected {
+		t.Errorf("Expected output %d, got %d", expected, result)
+	}
+}
+
+func TestCanBeMadeSafe(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected bool
+	}{
+		{
+			name:     "already safe sequence",
+			input:    []int{7, 6, 4, 2, 1},
+			expected: true,
+		},
+		{
+			name:     "cannot be made safe",
+			input:    []int{1, 2, 7, 8, 9},
+			expected: false,
+		},
+		{
+			name:     "another cannot be made safe",
+			input:    []int{9, 7, 6, 2, 1},
+			expected: false,
+		},
+		{
+			name:     "can be made safe by removing one element",
+			input:    []int{1, 3, 2, 4, 5},
+			expected: true,
+		},
+		{
+			name:     "can be made safe by removing duplicate",
+			input:    []int{8, 6, 4, 4, 1},
+			expected: true,
+		},
+		{
+			name:     "already safe increasing",
+			input:    []int{1, 3, 6, 7, 9},
+			expected: true,
+		},
+		{
+			name:     "single element",
+			input:    []int{1},
+			expected: true,
+		},
+		{
+			name:     "two elements safe",
+			input:    []int{2, 1},
+			expected: true,
+		},
+		{
+			name:     "empty slice",
+			input:    []int{},
+			expected: true,
+		},
+		{
+			name:     "three elements can be made safe",
+			input:    []int{1, 5, 2},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := CanBeMadeSafe(tt.input)
+			if result != tt.expected {
+				t.Errorf("CanBeMadeSafe(%v) = %v, want %v",
+					tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestPart2Error(t *testing.T) {
+	_, err := Part2("nonexistentfile")
+	if err == nil {
+		t.Error("Expected error for non-existent file")
+	}
+
+	tmpfile, err := os.CreateTemp("", "empty")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	result, err := Part2(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("Unexpected error for empty file: %v", err)
+	}
+	if result != 0 {
+		t.Errorf("Expected 0 for empty file, got %d", result)
+	}
+
+	invalidInput := []byte("invalid content\n")
+	tmpfileInvalid, err := os.CreateTemp("", "invalid")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfileInvalid.Name())
+
+	if _, err := tmpfileInvalid.Write(invalidInput); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfileInvalid.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err = Part2(tmpfileInvalid.Name())
+	if err != nil {
+		t.Fatalf("Unexpected error for invalid content: %v", err)
+	}
+	if result != 0 {
+		t.Errorf("Expected 0 for invalid content, got %d", result)
+	}
+}
+
+func TestPart2(t *testing.T) {
+	tempInput := []byte(`7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9`)
+
+	tmpfile, err := os.CreateTemp("", "example")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.Write(tempInput); err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := Part2(tmpfile.Name())
+	if err != nil {
+		t.Fatalf("Part2 failed: %v", err)
+	}
+
+	expected := 4
 	if result != expected {
 		t.Errorf("Expected output %d, got %d", expected, result)
 	}

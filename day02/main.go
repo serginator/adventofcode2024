@@ -16,11 +16,11 @@ func main() {
 	}
 	fmt.Println("Part1 result: ", result)
 
-	// result, err = Part2("input")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println("Part2 result: ", result)
+	result, err = Part2("input")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Part2 result: ", result)
 }
 
 func ReadRowsFromFile(filename string) ([][]int, error) {
@@ -36,7 +36,9 @@ func ReadRowsFromFile(filename string) ([][]int, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		row := SplitLine(line)
-		rows = append(rows, row)
+		if row != nil && len(row) > 0 {
+			rows = append(rows, row)
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
